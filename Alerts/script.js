@@ -21,7 +21,7 @@ const theContentThatShowsFirstInsteadOfSecond = document.getElementById('theCont
 const theContentThatShowsLastInsteadOfFirst = document.getElementById('theContentThatShowsLastInsteadOfFirst');
 const messageLabel = document.getElementById('message');
 
-let widgetLocked = false;
+let widgetLocked = false;                       // Needed to lock animation from overlapping
 let alertQueue = [];
 
 /////////////////
@@ -233,9 +233,9 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
     YouTubeGiftMembershipReceived(response.data);
 })
 
-client.on('YouTube.Subscribe', (response) => {
+client.on('YouTube.NewSubscriber', (response) => {
     console.debug(response.data);
-    YouTubeSubscribe(response.data);
+    YouTubeNewSubscriber(response.data);
 })
 
 client.on('Streamlabs.Donation', (response) => {
@@ -802,20 +802,20 @@ function YouTubeGiftMembershipReceived(data) {
     );
 }
 
-function YouTubeSubscribe(data) {
+function YouTubeNewSubscriber(data) {
     if (!showYouTubeSubs)
         return;
     
     // Render avatars
-    const avatarURL = data.user.profileImageUrl;
+    const avatarURL = data.avatar;
 
     UpdateAlertBox(
         'youtube',
         avatarURL,
-        `${data.user.name}`,
+        `${data.username}`,
         `just subscribed!`,
         '',
-        data.user.name,
+        data.username,
         '',
         youtubeSubAction,
         data
