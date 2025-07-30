@@ -84,7 +84,6 @@ const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", tru
 const youtubeSuperStickerAction = urlParams.get("youtubeSuperStickerAction") || "";
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
 const youtubeMembershipAction = urlParams.get("youtubeMembershipAction") || "";
-// NEU: Option für YouTube-Abos
 const showYouTubeSubscribers = GetBooleanParam("showYouTubeSubscribers", true);
 const youtubeSubscriberAction = urlParams.get("youtubeSubscriberAction") || "";
 
