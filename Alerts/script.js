@@ -21,7 +21,7 @@ const theContentThatShowsFirstInsteadOfSecond = document.getElementById('theCont
 const theContentThatShowsLastInsteadOfFirst = document.getElementById('theContentThatShowsLastInsteadOfFirst');
 const messageLabel = document.getElementById('message');
 
-let widgetLocked = false;                       // Needed to lock animation from overlapping
+let widgetLocked = false;
 let alertQueue = [];
 
 /////////////////
@@ -70,7 +70,7 @@ const showTwitchRaids = GetBooleanParam("showTwitchRaids", true);
 const twitchRaidAction = urlParams.get("twitchRaidAction") || "";
 
 // Which Kick alerts do you want to see?
-const kickUsername = urlParams.get("kickUsername") || "InfernoMate";
+const kickUsername = urlParams.get("kickUsername") || "";
 const showKickFollows = GetBooleanParam("showKickFollows", true);
 const showKickSubs = GetBooleanParam("showKickSubs", true);
 const kickSubAction = urlParams.get("kickSubAction") || "";
