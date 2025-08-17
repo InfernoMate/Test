@@ -88,17 +88,6 @@ const animationSpeed = GetIntParam("animationSpeed", 0.1);
 document.body.style.fontFamily = font;
 document.body.style.fontSize = `${fontSize}px`;
 
-// Set custom background
-if (useCustomBackground) {
-    const opacity255 = Math.round(parseFloat(opacity) * 255);
-    let hexOpacity = opacity255.toString(16);
-    if (hexOpacity.length < 2) {
-        hexOpacity = "0" + hexOpacity;
-    }
-    console.log(`${background}${hexOpacity}`);
-    document.documentElement.style.setProperty('--custom-background', `${background}${hexOpacity}`);
-}
-
 // Set line spacing
 document.documentElement.style.setProperty('--line-spacing', `${lineSpacing}em`);
 
