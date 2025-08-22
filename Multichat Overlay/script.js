@@ -67,7 +67,7 @@ const showYouTubeMessages = GetBooleanParam("showYouTubeMessages", true);
 const showYouTubeSuperChats = GetBooleanParam("showYouTubeSuperChats", true);
 const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", true);
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
-const showYouTubeSubscribers = GetBooleanParam("showYouTubeSubscribers", true);
+const showYouTubeSubscribers = GetBooleanParam("showYouTubeSubscribers", true); // NEU: Option für YouTube-Abos
 
 const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", false);
 const showTikTokMessages = GetBooleanParam("showTikTokMessages", false);
@@ -233,9 +233,10 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 	YouTubeGiftMembershipReceived(response.data);
 })
 
-client.on('YouTube.NewSubscriber', (response) => {
+// NEU: Event-Listener für YouTube-Abos
+client.on('YouTube.Subscribe', (response) => {
     console.debug(response.data);
-    YouTubeNewSubscriber(response.data);
+    YouTubeSubscribe(response.data);
 });
 
 client.on('StreamElements.Tip', (response) => {
@@ -401,7 +402,7 @@ let tikfinityWebsocket = null;
 function TikfinityConnect() {
 	if (!enableTikTokSupport)
 		return;
-	
+
 	if (tikfinityWebsocket) return; // Already connected
 
 	tikfinityWebsocket = new WebSocket("ws://localhost:21213/");
@@ -476,7 +477,7 @@ async function TwitchChatMessage(data) {
 	const firstMessageDiv = instance.querySelector("#firstMessage");
 	const sharedChatDiv = instance.querySelector("#sharedChat");
 	const sharedChatChannelDiv = instance.querySelector("#sharedChatChannel");
-    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
+    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
 	const replyDiv = instance.querySelector("#reply");
 	const replyUserDiv = instance.querySelector("#replyUser");
 	const replyMsgDiv = instance.querySelector("#replyMsg");
@@ -507,21 +508,28 @@ async function TwitchChatMessage(data) {
 		messageContainerDiv.classList.add("highlightMessage");
 	}
 
-	// Set Shared Chat (Hardcoded to always show and highlight)
-    if (data.isFromSharedChatGuest) {
-        const sharedChatChannel = data.sharedChat.sourceRoom.name;
-        sharedChatDiv.style.display = 'flex';
-        sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
+	// Set Shared Chat
+	const isSharedChat = data.isSharedChat;
+	if (isSharedChat) {
+		if (showTwitchSharedChat > 1) {
+			if (!data.sharedChat.primarySource) {
+				const sharedChatChannel = data.sharedChat.sourceRoom.name;
+				sharedChatDiv.style.display = 'flex';
+				sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
-        // Add the gradient class to the shared chat container
-        sharedChatDiv.classList.add("shared-chat-gradient");
+                // Add the gradient class to the shared chat container
+                sharedChatDiv.classList.add("shared-chat-gradient");
 
-        const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
-        if (avatarURL) {
-            sharedChatAvatar.src = avatarURL;
-            sharedChatAvatar.style.display = 'inline';
-        }
-    }
+                const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
+                if (avatarURL) {
+                    sharedChatAvatar.src = avatarURL;
+                    sharedChatAvatar.style.display = 'inline';
+                }
+			}
+		}
+		else if (!data.sharedChat.primarySource && showTwitchSharedChat == 0)
+			return;
+	}
 
 	// Set Reply Message
 	const isReply = data.message.isReply;
@@ -1440,7 +1448,8 @@ function YouTubeGiftMembershipReceived(data) {
 	AddMessageItem(instance, data.eventId);
 }
 
-function YouTubeNewSubscriber(data) {
+// NEU: Funktion zur Anzeige von YouTube-Abos
+function YouTubeSubscribe(data) {
     if (!showYouTubeSubscribers)
         return;
 
@@ -1452,28 +1461,17 @@ function YouTubeNewSubscriber(data) {
 
     // Get divs
     const cardDiv = instance.querySelector("#card");
-    const avatarDiv = instance.querySelector("#avatar");
     const titleDiv = instance.querySelector("#title");
     const contentDiv = instance.querySelector("#content");
 
     // Set the card background colors
     cardDiv.classList.add('youtube');
 
-    // Show the avatar image
-    if (showAvatar && data.avatar) {
-        const avatar = new Image();
-        avatar.src = data.avatar;
-        avatar.classList.add("avatar");
-        avatarDiv.appendChild(avatar);
-    } else {
-		avatarDiv.style.display = 'none';
-	}
+    // Set message text
+    titleDiv.innerText = `⭐ ${data.displayName} has subscribed!`;
+    contentDiv.style.display = 'none';
 
-    // Set the message text
-    titleDiv.innerText = `⭐ ${data.username} has subscribed!`;
-    contentDiv.style.display = 'none'; // No content for this notification
-
-    AddMessageItem(instance, data.userId);
+    AddMessageItem(instance, data.eventId);
 }
 
 async function StreamElementsTip(data) {
@@ -2504,7 +2502,7 @@ function KickUserBanned(data) {
 async function TikTokChat(data) {
 	if (!showTikTokMessages)
 		return;
-	
+
 	// Don't post messages starting with "!"
 	if (data.comment.startsWith("!") && excludeCommands)
 		return;
