@@ -3,13 +3,9 @@ name: Deploy Main and Testing Branches
 
 # Trigger: Wann soll dieser Workflow starten?
 on:
-  # Startet bei jedem Push auf den main-Branch
   push:
     branches:
       - main
-  # Startet bei jedem Push auf den Testing-Branch
-  push:
-    branches:
       - Testing
   # Erlaubt manuelles Starten des Workflows über den "Actions"-Tab
   workflow_dispatch:
