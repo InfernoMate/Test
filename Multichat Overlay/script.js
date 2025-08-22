@@ -67,6 +67,7 @@ const showYouTubeMessages = GetBooleanParam("showYouTubeMessages", true);
 const showYouTubeSuperChats = GetBooleanParam("showYouTubeSuperChats", true);
 const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", true);
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
+const showYouTubeSubscribers = GetBooleanParam("showYouTubeSubscribers", true);
 
 const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", false);
 const showTikTokMessages = GetBooleanParam("showTikTokMessages", false);
@@ -231,6 +232,11 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 	console.debug(response.data);
 	YouTubeGiftMembershipReceived(response.data);
 })
+
+client.on('YouTube.Subscribe', (response) => {
+    console.debug(response.data);
+    YouTubeSubscribe(response.data);
+});
 
 client.on('StreamElements.Tip', (response) => {
 	console.debug(response.data);
@@ -470,7 +476,7 @@ async function TwitchChatMessage(data) {
 	const firstMessageDiv = instance.querySelector("#firstMessage");
 	const sharedChatDiv = instance.querySelector("#sharedChat");
 	const sharedChatChannelDiv = instance.querySelector("#sharedChatChannel");
-	const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
+    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
 	const replyDiv = instance.querySelector("#reply");
 	const replyUserDiv = instance.querySelector("#replyUser");
 	const replyMsgDiv = instance.querySelector("#replyMsg");
@@ -1437,6 +1443,31 @@ function YouTubeGiftMembershipReceived(data) {
 	contentDiv.innerText = `to ${data.user.name} (${data.tier})!`;
 
 	AddMessageItem(instance, data.eventId);
+}
+
+function YouTubeSubscribe(data) {
+    if (!showYouTubeSubscribers)
+        return;
+
+    // Get a reference to the template
+    const template = document.getElementById('cardTemplate');
+
+    // Create a new instance of the template
+    const instance = template.content.cloneNode(true);
+
+    // Get divs
+    const cardDiv = instance.querySelector("#card");
+    const titleDiv = instance.querySelector("#title");
+    const contentDiv = instance.querySelector("#content");
+
+    // Set the card background colors
+    cardDiv.classList.add('youtube');
+
+    // Set message text
+    titleDiv.innerText = `⭐ ${data.displayName} has subscribed!`;
+    contentDiv.style.display = 'none';
+
+    AddMessageItem(instance, data.eventId);
 }
 
 async function StreamElementsTip(data) {
