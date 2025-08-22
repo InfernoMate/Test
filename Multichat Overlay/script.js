@@ -509,7 +509,7 @@ async function TwitchChatMessage(data) {
 	}
 
 	// Set Shared Chat
-	const isSharedChat = data.isSharedChat;
+	const isSharedChat = data.isInSharedChat;
 	if (isSharedChat) {
 		if (showTwitchSharedChat > 1) {
 			if (!data.sharedChat.primarySource) {
