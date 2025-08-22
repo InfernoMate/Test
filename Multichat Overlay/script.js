@@ -509,11 +509,12 @@ async function TwitchChatMessage(data) {
 	}
 
 	// Set Shared Chat
-	const isSharedChat = data.isSharedChat;
+	const isSharedChat = data.isSharedChat; // isSharedChat ist jetzt ein Objekt
 	if (isSharedChat) {
 		if (showTwitchSharedChat > 1) {
-			if (!data.sharedChat.primarySource) {
-				const sharedChatChannel = data.sharedChat.sourceRoom.name;
+            // Wir prüfen, ob die Nachricht NICHT vom primären Kanal kommt
+			if (!isSharedChat.primarySource) { // KORREKTUR: von data.sharedChat zu isSharedChat geändert
+				const sharedChatChannel = isSharedChat.sourceRoom.name; // KORREKTUR: von data.sharedChat zu isSharedChat geändert
 				sharedChatDiv.style.display = 'flex';
 				sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
@@ -527,7 +528,7 @@ async function TwitchChatMessage(data) {
                 }
 			}
 		}
-		else if (!data.sharedChat.primarySource && showTwitchSharedChat == 0)
+		else if (!isSharedChat.primarySource && showTwitchSharedChat == 0) // KORREKTUR: von data.sharedChat zu isSharedChat geändert
 			return;
 	}
 
@@ -688,47 +689,6 @@ async function TwitchChatMessage(data) {
 
 		YouTubeThumbnailPreview(videoData);
 	}
-}
-
-async function TwitchAutomaticRewardRedemption(data) {
-	// Get a reference to the template
-	const template = document.getElementById('messageTemplate');
-
-	// Create a new instance of the template
-	const instance = template.content.cloneNode(true);
-
-	// Get divs
-	const messageContainerDiv = instance.querySelector("#messageContainer");
-	const firstMessageDiv = instance.querySelector("#firstMessage");
-	const replyDiv = instance.querySelector("#reply");
-	const replyUserDiv = instance.querySelector("#replyUser");
-	const replyMsgDiv = instance.querySelector("#replyMsg");
-	const userInfoDiv = instance.querySelector("#userInfo");
-	const avatarDiv = instance.querySelector("#avatar");
-	const timestampDiv = instance.querySelector("#timestamp");
-	const platformDiv = instance.querySelector("#platform");
-	const badgeListDiv = instance.querySelector("#badgeList");
-	const usernameDiv = instance.querySelector("#username");
-	const messageDiv = instance.querySelector("#message");
-
-	if (data.reward_type != 'gigantify_an_emote')
-		return;
-
-	userInfoDiv.style.display = "none";
-
-	// Show the gigantified emote
-	const gigaEmote = data.gigantified_emote.imageUrl;
-	const image = new Image();
-	image.src = gigaEmote;
-	image.style.padding = "0px 0px";
-	image.style.width = "10em";
-
-	image.onload = function () {
-		messageDiv.innerHTML = '';
-		messageDiv.appendChild(image);
-	}
-
-	AddMessageItem(instance, data.id);
 }
 
 async function TwitchAnnouncement(data) {
