@@ -507,24 +507,19 @@ async function TwitchChatMessage(data) {
 		messageContainerDiv.classList.add("highlightMessage");
 	}
 
-	// Set Shared Chat
+	// Set Shared Chat (Hardcoded to always show and highlight)
     if (data.isFromSharedChatGuest) {
-        if (showTwitchSharedChat === 0) {
-            return;
-        }
-        if (showTwitchSharedChat > 1) {
-            const sharedChatChannel = data.sharedChat.sourceRoom.name;
-            sharedChatDiv.style.display = 'flex';
-            sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
+        const sharedChatChannel = data.sharedChat.sourceRoom.name;
+        sharedChatDiv.style.display = 'flex';
+        sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
-            // Add the gradient class to the shared chat container
-            sharedChatDiv.classList.add("shared-chat-gradient");
+        // Add the gradient class to the shared chat container
+        sharedChatDiv.classList.add("shared-chat-gradient");
 
-            const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
-            if (avatarURL) {
-                sharedChatAvatar.src = avatarURL;
-                sharedChatAvatar.style.display = 'inline';
-            }
+        const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
+        if (avatarURL) {
+            sharedChatAvatar.src = avatarURL;
+            sharedChatAvatar.style.display = 'inline';
         }
     }
 
