@@ -507,24 +507,27 @@ async function TwitchChatMessage(data) {
 		messageContainerDiv.classList.add("highlightMessage");
 	}
 
-	// Set Shared Chat
-	if (data.isFromSharedChatGuest) {
-		if (showTwitchSharedChat === 0) {
-			return;
-		}
-		if (showTwitchSharedChat > 1) {
-			const sharedChatChannel = data.sharedChat.sourceRoom.name;
-			sharedChatDiv.style.display = 'flex';
-			sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
+if (data.isFromSharedChatGuest) {
+    // Option 0: Nachrichten von Gästen komplett ignorieren.
+    if (showTwitchSharedChat === 0) {
+        return; 
+    }
 
-			// Add the gradient class to the shared chat container
-			sharedChatDiv.classList.add("shared-chat-gradient");
+    // Option > 1 (in deinem Fall 2): Das Highlight anzeigen.
+    if (showTwitchSharedChat > 1) {
+        const sharedChatChannel = data.sharedChat.sourceRoom.name;
+        sharedChatDiv.style.display = 'flex';
+        sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
-			const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
-			if (avatarURL) {
-				sharedChatAvatar.src = avatarURL;
-				sharedChatAvatar.style.display = 'inline';
-			}
+        // Add the gradient class to the shared chat container
+        sharedChatDiv.classList.add("shared-chat-gradient");
+
+        const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
+        if (avatarURL) {
+            sharedChatAvatar.src = avatarURL;
+            sharedChatAvatar.style.display = 'inline';
+    			}
+    		}
 		}
 	}
 
@@ -685,7 +688,7 @@ async function TwitchChatMessage(data) {
 
 		YouTubeThumbnailPreview(videoData);
 	}
-}
+
 
 async function TwitchAutomaticRewardRedemption(data) {
 	// Get a reference to the template
