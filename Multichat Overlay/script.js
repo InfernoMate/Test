@@ -233,9 +233,10 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 	YouTubeGiftMembershipReceived(response.data);
 })
 
-client.on('YouTube.Subscribe', (response) => {
+// KORRIGIERTER Event-Listener für YouTube-Abos
+client.on('YouTube.NewSubscriber', (response) => {
     console.debug(response.data);
-    YouTubeSubscribe(response.data);
+    YouTubeNewSubscriber(response.data);
 });
 
 client.on('StreamElements.Tip', (response) => {
@@ -476,7 +477,7 @@ async function TwitchChatMessage(data) {
 	const firstMessageDiv = instance.querySelector("#firstMessage");
 	const sharedChatDiv = instance.querySelector("#sharedChat");
 	const sharedChatChannelDiv = instance.querySelector("#sharedChatChannel");
-    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
+    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
 	const replyDiv = instance.querySelector("#reply");
 	const replyUserDiv = instance.querySelector("#replyUser");
 	const replyMsgDiv = instance.querySelector("#replyMsg");
@@ -507,28 +508,27 @@ async function TwitchChatMessage(data) {
 		messageContainerDiv.classList.add("highlightMessage");
 	}
 
-if (data.isFromSharedChatGuest) {
-    // Option 0: Nachrichten von Gästen komplett ignorieren.
-    if (showTwitchSharedChat === 0) {
-        return; 
-    }
+	// Set Shared Chat
+	const isSharedChat = data.isSharedChat;
+	if (isSharedChat) {
+		if (showTwitchSharedChat > 1) {
+			if (!data.sharedChat.primarySource) {
+				const sharedChatChannel = data.sharedChat.sourceRoom.name;
+				sharedChatDiv.style.display = 'flex';
+				sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
-    // Option > 1 (in deinem Fall 2): Das Highlight anzeigen.
-    if (showTwitchSharedChat > 1) {
-        const sharedChatChannel = data.sharedChat.sourceRoom.name;
-        sharedChatDiv.style.display = 'flex';
-        sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
+                // Add the gradient class to the shared chat container
+                sharedChatDiv.classList.add("shared-chat-gradient");
 
-        // Add the gradient class to the shared chat container
-        sharedChatDiv.classList.add("shared-chat-gradient");
-
-        const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
-        if (avatarURL) {
-            sharedChatAvatar.src = avatarURL;
-            sharedChatAvatar.style.display = 'inline';
-    			}
-    		}
+                const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
+                if (avatarURL) {
+                    sharedChatAvatar.src = avatarURL;
+                    sharedChatAvatar.style.display = 'inline';
+                }
+			}
 		}
+		else if (!data.sharedChat.primarySource && showTwitchSharedChat == 0)
+			return;
 	}
 
 	// Set Reply Message
@@ -688,7 +688,7 @@ if (data.isFromSharedChatGuest) {
 
 		YouTubeThumbnailPreview(videoData);
 	}
-
+}
 
 async function TwitchAutomaticRewardRedemption(data) {
 	// Get a reference to the template
@@ -1448,29 +1448,41 @@ function YouTubeGiftMembershipReceived(data) {
 	AddMessageItem(instance, data.eventId);
 }
 
-function YouTubeSubscribe(data) {
+// KORRIGIERTE Funktion zur Anzeige von YouTube-Abos
+function YouTubeNewSubscriber(data) {
     if (!showYouTubeSubscribers)
         return;
 
-    // Get a reference to the template
+    // Hole eine Referenz auf das Template
     const template = document.getElementById('cardTemplate');
 
-    // Create a new instance of the template
+    // Erstelle eine neue Instanz des Templates
     const instance = template.content.cloneNode(true);
 
-    // Get divs
+    // Hole die entsprechenden Divs
     const cardDiv = instance.querySelector("#card");
+    const avatarDiv = instance.querySelector("#avatar");
     const titleDiv = instance.querySelector("#title");
     const contentDiv = instance.querySelector("#content");
 
-    // Set the card background colors
+    // Setze die Hintergrundfarbe der Karte
     cardDiv.classList.add('youtube');
 
-    // Set message text
-    titleDiv.innerText = `⭐ ${data.displayName} has subscribed!`;
-    contentDiv.style.display = 'none';
+    // Zeige das Avatar-Bild an
+    if (showAvatar && data.avatar) {
+        const avatar = new Image();
+        avatar.src = data.avatar;
+        avatar.classList.add("avatar");
+        avatarDiv.appendChild(avatar);
+    } else {
+		avatarDiv.style.display = 'none';
+	}
 
-    AddMessageItem(instance, data.eventId);
+    // Setze den Nachrichtentext
+    titleDiv.innerText = `⭐ ${data.username} has subscribed!`;
+    contentDiv.style.display = 'none'; // Kein Inhalt für diese Benachrichtigung
+
+    AddMessageItem(instance, data.userId);
 }
 
 async function StreamElementsTip(data) {
