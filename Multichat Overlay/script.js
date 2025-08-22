@@ -9,7 +9,7 @@ const sbServerAddress = urlParams.get("address") || "127.0.0.1";
 const sbServerPort = urlParams.get("port") || "8080";
 const avatarMap = new Map();
 const pronounMap = new Map();
-g
+
 /////////////////
 // GLOBAL VARS //
 /////////////////
