@@ -67,7 +67,6 @@ const showYouTubeMessages = GetBooleanParam("showYouTubeMessages", true);
 const showYouTubeSuperChats = GetBooleanParam("showYouTubeSuperChats", true);
 const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", true);
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
-const showYouTubeSubscribers = GetBooleanParam("showYouTubeSubscribers", true); // NEU: Option für YouTube-Abos
 
 const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", false);
 const showTikTokMessages = GetBooleanParam("showTikTokMessages", false);
@@ -232,12 +231,6 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 	console.debug(response.data);
 	YouTubeGiftMembershipReceived(response.data);
 })
-
-// NEU: Event-Listener für YouTube-Abos
-client.on('YouTube.Subscribe', (response) => {
-    console.debug(response.data);
-    YouTubeSubscribe(response.data);
-});
 
 client.on('StreamElements.Tip', (response) => {
 	console.debug(response.data);
@@ -477,7 +470,7 @@ async function TwitchChatMessage(data) {
 	const firstMessageDiv = instance.querySelector("#firstMessage");
 	const sharedChatDiv = instance.querySelector("#sharedChat");
 	const sharedChatChannelDiv = instance.querySelector("#sharedChatChannel");
-    const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
+	const sharedChatAvatar = instance.querySelector("#sharedChatAvatar");
 	const replyDiv = instance.querySelector("#reply");
 	const replyUserDiv = instance.querySelector("#replyUser");
 	const replyMsgDiv = instance.querySelector("#replyMsg");
@@ -509,26 +502,24 @@ async function TwitchChatMessage(data) {
 	}
 
 	// Set Shared Chat
-	const isSharedChat = data.isInSharedChat;
-	if (isSharedChat) {
+	if (data.isFromSharedChatGuest) {
+		if (showTwitchSharedChat === 0) {
+			return;
+		}
 		if (showTwitchSharedChat > 1) {
-			if (!data.sharedChat.primarySource) {
-				const sharedChatChannel = data.sharedChat.sourceRoom.name;
-				sharedChatDiv.style.display = 'flex';
-				sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
+			const sharedChatChannel = data.sharedChat.sourceRoom.name;
+			sharedChatDiv.style.display = 'flex';
+			sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 
-                // Add the gradient class to the shared chat container
-                sharedChatDiv.classList.add("shared-chat-gradient");
+			// Add the gradient class to the shared chat container
+			sharedChatDiv.classList.add("shared-chat-gradient");
 
-                const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
-                if (avatarURL) {
-                    sharedChatAvatar.src = avatarURL;
-                    sharedChatAvatar.style.display = 'inline';
-                }
+			const avatarURL = await GetAvatar(sharedChatChannel, 'twitch');
+			if (avatarURL) {
+				sharedChatAvatar.src = avatarURL;
+				sharedChatAvatar.style.display = 'inline';
 			}
 		}
-		else if (!data.sharedChat.primarySource && showTwitchSharedChat == 0)
-			return;
 	}
 
 	// Set Reply Message
@@ -1446,32 +1437,6 @@ function YouTubeGiftMembershipReceived(data) {
 	contentDiv.innerText = `to ${data.user.name} (${data.tier})!`;
 
 	AddMessageItem(instance, data.eventId);
-}
-
-// NEU: Funktion zur Anzeige von YouTube-Abos
-function YouTubeSubscribe(data) {
-    if (!showYouTubeSubscribers)
-        return;
-
-    // Get a reference to the template
-    const template = document.getElementById('cardTemplate');
-
-    // Create a new instance of the template
-    const instance = template.content.cloneNode(true);
-
-    // Get divs
-    const cardDiv = instance.querySelector("#card");
-    const titleDiv = instance.querySelector("#title");
-    const contentDiv = instance.querySelector("#content");
-
-    // Set the card background colors
-    cardDiv.classList.add('youtube');
-
-    // Set message text
-    titleDiv.innerText = `⭐ ${data.displayName} has subscribed!`;
-    contentDiv.style.display = 'none';
-
-    AddMessageItem(instance, data.eventId);
 }
 
 async function StreamElementsTip(data) {
