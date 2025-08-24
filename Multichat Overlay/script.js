@@ -235,7 +235,7 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 
 client.on('YouTube.NewSubscriber', (response) => {
     console.debug(response.data);
-    YouTubeSubscriber(response.data);
+    YouTubeNewSubscriber(response.data);
 });
 
 client.on('StreamElements.Tip', (response) => {
@@ -1447,7 +1447,7 @@ function YouTubeGiftMembershipReceived(data) {
 	AddMessageItem(instance, data.eventId);
 }
 
-function YouTubeSubscriber(data) {
+function YouTubeNewSubscriber(data) {
     if (!showYouTubeSubscribers)
         return;
 
