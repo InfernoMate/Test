@@ -233,10 +233,9 @@ client.on('YouTube.GiftMembershipReceived', (response) => {
 	YouTubeGiftMembershipReceived(response.data);
 })
 
-// NEU: Event-Listener für YouTube-Abos
-client.on('YouTube.Subscribe', (response) => {
+client.on('YouTube.NewSubscriber', (response) => {
     console.debug(response.data);
-    YouTubeSubscribe(response.data);
+    YouTubeSubscriber(response.data);
 });
 
 client.on('StreamElements.Tip', (response) => {
@@ -1448,8 +1447,7 @@ function YouTubeGiftMembershipReceived(data) {
 	AddMessageItem(instance, data.eventId);
 }
 
-// NEU: Funktion zur Anzeige von YouTube-Abos
-function YouTubeSubscribe(data) {
+function YouTubeSubscriber(data) {
     if (!showYouTubeSubscribers)
         return;
 
